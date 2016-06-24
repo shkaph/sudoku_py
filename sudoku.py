@@ -1,16 +1,19 @@
 #!/bin/python
 
+#----------------------------------------------------------------
+# Author: Olexiy Shkarupa
+# e-mail: shkaph@gmail.com
+# 6/15/2016
+#----------------------------------------------------------------
+
 import sys
 import re
 import subprocess
-''' Another approach is possible:
-    to make the import by
---> from subprocess import call
-    and invoke the 'call' function without name of packet just like that
---> call(...)
-'''
+from getch import Getch
+
 
 SIZE = 9
+
 
 class Cell:
     def __init__(self):
@@ -32,6 +35,7 @@ class Cell:
     def unset(self, digit):
         if digit in self.stencil:
             self.stencil.remove(digit)
+
 
 class Grid:
     def __init__(self):
@@ -63,6 +67,7 @@ class Grid:
     def write_down(self, x, y, digit):
         self.cells[x][y].set(digit)
         self.strike_out(x, y, digit)
+
 
 class Sudoku:
     def __init__(self, in_file, out_file=None):
@@ -130,55 +135,13 @@ class Sudoku:
 
 def help(name):
     print 'Sudoku v.0.1'
-    print 'Usage:', name , '<input-file-name> [<output-file-name>]'
+    print '(c) Olexiy Shkarupa, 2016'
+    print 'Usage:', name , '<input-file-name>'
 
 
 
 
-'''
-global Getct = _Getch()
 
-class _Getch:
-    # --- Gets a single character from standard input.  Does not echo to the screen. ---
-    def __init__(self):
-        try:
-            self.impl = _GetchWindows()
-        except ImportError:
-            self.impl = _GetchUnix()
-
-    def __call__(self): 
-        print 'call'
-        return self.impl.call()
-
-
-class _GetchUnix:
-    def __init__(self):
-        print 'unix {ctor}'
-        import tty, sys
-
-    def call(self):
-        print 'unix call'
-        import sys, tty, termios
-        fd = sys.stdin.fileno()
-        old_settings = termios.tcgetattr(fd)
-        try:
-            tty.setraw(sys.stdin.fileno())
-            ch = sys.stdin.read(1)
-        finally:
-            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-        return ch
-
-
-class _GetchWindows:
-    def __init__(self):
-        print 'win {ctor}'
-        import msvcrt
-
-    def call(self):
-        print 'win call'
-        import msvcrt
-        return msvcrt.getch()
-'''
 
 '''
   Tyt HE MO>|<E ByTbI
@@ -198,14 +161,11 @@ X . . | * * * | X X X
 '''
 
 
-
 def main():
     s = None
 
     if len(sys.argv) == 2:
         s = Sudoku(sys.argv[1])
-    elif len(sys.argv) == 3:
-        s = Sudoku(sys.argv[1], sys.argv[2])
     else:
         help(sys.argv[0])
         sys.exit(1)
@@ -214,17 +174,40 @@ def main():
         print 'File', sys.argv[1], 'is not exist or corrupted'
         sys.exit(1)
 
-    s.output()
+    getch = Getch()
+    print 'Press any key... ',
+    getch()
+    print '\nPress any key... ',
+    getch()
+    print '\nPress any key... ',
+    getch()
+
+
+#    s.output()
+
+'''
+    print '[ \033[0;30m' + 'Text' + '\033[0m ]' + '  [ \033[1;30m' + 'Text' + '\033[0m ]' + '  [ \033[4;30m' + 'Text' + '\033[0m ]' + '  [ \033[5;30m' + 'Text' + '\033[0m ]'
+    print '[ \033[0;31m' + 'Text' + '\033[0m ]' + '  [ \033[1;31m' + 'Text' + '\033[0m ]' + '  [ \033[4;31m' + 'Text' + '\033[0m ]' + '  [ \033[5;31m' + 'Text' + '\033[0m ]'
+    print '[ \033[0;32m' + 'Text' + '\033[0m ]' + '  [ \033[1;32m' + 'Text' + '\033[0m ]' + '  [ \033[4;32m' + 'Text' + '\033[0m ]' + '  [ \033[5;32m' + 'Text' + '\033[0m ]'
+    print '[ \033[0;33m' + 'Text' + '\033[0m ]' + '  [ \033[1;33m' + 'Text' + '\033[0m ]' + '  [ \033[4;33m' + 'Text' + '\033[0m ]' + '  [ \033[5;33m' + 'Text' + '\033[0m ]'
+    print '[ \033[0;34m' + 'Text' + '\033[0m ]' + '  [ \033[1;34m' + 'Text' + '\033[0m ]' + '  [ \033[4;34m' + 'Text' + '\033[0m ]' + '  [ \033[5;34m' + 'Text' + '\033[0m ]'
+    print '[ \033[0;35m' + 'Text' + '\033[0m ]' + '  [ \033[1;35m' + 'Text' + '\033[0m ]' + '  [ \033[4;35m' + 'Text' + '\033[0m ]' + '  [ \033[5;35m' + 'Text' + '\033[0m ]'
+    print '[ \033[0;36m' + 'Text' + '\033[0m ]' + '  [ \033[1;36m' + 'Text' + '\033[0m ]' + '  [ \033[4;36m' + 'Text' + '\033[0m ]' + '  [ \033[5;36m' + 'Text' + '\033[0m ]'
+    print '[ \033[0;37m' + 'Text' + '\033[0m ]' + '  [ \033[1;37m' + 'Text' + '\033[0m ]' + '  [ \033[4;37m' + 'Text' + '\033[0m ]' + '  [ \033[5;37m' + 'Text' + '\033[0m ]'
+    print ''
+    print '[ \033[0;40m' + 'Text' + '\033[0m ]' + '  [ \033[1;40m' + 'Text' + '\033[0m ]' + '  [ \033[4;40m' + 'Text' + '\033[0m ]' + '  [ \033[5;40m' + 'Text' + '\033[0m ]'
+    print '[ \033[0;41m' + 'Text' + '\033[0m ]' + '  [ \033[1;41m' + 'Text' + '\033[0m ]' + '  [ \033[4;41m' + 'Text' + '\033[0m ]' + '  [ \033[5;41m' + 'Text' + '\033[0m ]'
+    print '[ \033[0;42m' + 'Text' + '\033[0m ]' + '  [ \033[1;42m' + 'Text' + '\033[0m ]' + '  [ \033[4;42m' + 'Text' + '\033[0m ]' + '  [ \033[5;42m' + 'Text' + '\033[0m ]'
+    print '[ \033[0;43m' + 'Text' + '\033[0m ]' + '  [ \033[1;43m' + 'Text' + '\033[0m ]' + '  [ \033[4;43m' + 'Text' + '\033[0m ]' + '  [ \033[5;43m' + 'Text' + '\033[0m ]'
+    print '[ \033[0;44m' + 'Text' + '\033[0m ]' + '  [ \033[1;44m' + 'Text' + '\033[0m ]' + '  [ \033[4;44m' + 'Text' + '\033[0m ]' + '  [ \033[5;44m' + 'Text' + '\033[0m ]'
+    print '[ \033[0;45m' + 'Text' + '\033[0m ]' + '  [ \033[1;45m' + 'Text' + '\033[0m ]' + '  [ \033[4;45m' + 'Text' + '\033[0m ]' + '  [ \033[5;45m' + 'Text' + '\033[0m ]'
+    print '[ \033[0;46m' + 'Text' + '\033[0m ]' + '  [ \033[1;46m' + 'Text' + '\033[0m ]' + '  [ \033[4;46m' + 'Text' + '\033[0m ]' + '  [ \033[5;46m' + 'Text' + '\033[0m ]'
+    print '[ \033[0;47m' + 'Text' + '\033[0m ]' + '  [ \033[1;47m' + 'Text' + '\033[0m ]' + '  [ \033[4;47m' + 'Text' + '\033[0m ]' + '  [ \033[5;47m' + 'Text' + '\033[0m ]'
+'''
 
     #print '\033[0;34m-----\033[0;36m-==>>\033[0;37m>  C\033[0;33m O M\033[0;31m P L E\033[0;33m T E\033[0;37m D <\033[0;36m<<==-\033[0;34m-----\033[0m'
 
-'''
-    ch = _Getch()
-    aa = ch()
-    print
-    print aa
-    print
-'''
+
     
     #simple_cross_off
     #search_unique
