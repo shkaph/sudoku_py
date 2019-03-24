@@ -1,0 +1,89 @@
+<head>
+<!-- https://html.spec.whatwg.org/multipage/webappapis.html#errorevent -->
+<style>
+	table {
+		border-style: solid;
+		border-width: 1px;
+		border-collapse: collapse;
+		border-color: #0000FF;
+	}
+	td {
+		border-style: solid;
+		border-width: 1px;
+		border-color: #ff0000;
+		padding: 5px 10px 5px 10px;
+		margin: 0px;
+	}
+	#greed {
+		margin: auto;
+		padding: 15px;
+		width: 70%;
+		text-align: center;
+		background-color: #e0ffe0;
+	}
+</style>
+
+<script>
+
+	function mlog(msg) {
+		name = 'output'
+		output = document.getElementById(name);
+		if (output)
+			output.innerHTML += msg + '</br>'
+		else 
+			alert('Can`t get elemend with ID [' + name + ']')
+	}
+
+
+	function on_open(){
+		web_socket.send('Prima');
+		mlog('Message is sent...');
+	};
+
+
+	function on_message(event) { 
+		var msg = event.data;
+		mlog("Message is received: " + msg);
+	};
+
+
+	function on_close() { 
+		mlog("Connection is closed..."); 
+	};
+
+
+	function on_error(event) {
+		mlog('Error has occured:');
+		mlog('  message: ' + event.message);
+		mlog('  filename: ' + event.filename);
+		mlog('  lineno: ' + event.lineno + ' colno: ' + event.colno);
+		mlog('  error: ' + event.error);
+	};
+
+
+	function main(host, port) {
+		mlog('Here we go');
+
+		if (!("WebSocket" in window)) {
+			mlog('WebSocket NOT supported by your Browser!');
+			return;
+		}
+
+		web_socket = new WebSocket('ws:/' + host + ':' + port);
+		web_socket.onopen = on_open;
+		web_socket.onmessage = on_message;
+		web_socket.onclose = on_close;
+		web_socket.onerror = on_error;
+
+		greed = document.getElementById('greed');
+		greed.innerHTML += '';
+	}
+
+</script>
+</head>
+
+<body onload='main("localhost", 8765)'>
+	<div id="greed">fwfe</div>
+	<div id="output" style="background-color: #E0E0E0" />
+</body>
+
