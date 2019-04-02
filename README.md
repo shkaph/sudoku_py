@@ -1,2 +1,3 @@
-# sudoku_py
-Python version of Sudoku Solver
+# SDK - Su Do Ku
+Python - Sudoku Solver
+HTML+JS - User interface
