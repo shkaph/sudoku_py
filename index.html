@@ -1,16 +1,29 @@
 <head>
 <!-- https://html.spec.whatwg.org/multipage/webappapis.html#errorevent -->
 <style>
-	table {
+	table.external {
 		border-style: solid;
-		border-width: 1px;
+		border-width: 2px;
 		border-collapse: collapse;
-		border-color: #0000FF;
+		border-color: #666666;
 	}
-	td {
+	td.external {
 		border-style: solid;
 		border-width: 1px;
-		border-color: #ff0000;
+		border-color: #666666;
+		padding: 0px;
+		margin: 0px;
+	}
+
+	table.internal {
+		border-style: solid;
+		border-width: 0px;
+		border-collapse: collapse;
+	}
+	td.internal {
+		border-style: solid;
+		border-width: 1px;
+		border-color: #666666;
 		padding: 5px 10px 5px 10px;
 		margin: 0px;
 	}
@@ -19,53 +32,172 @@
 		padding: 15px;
 		width: 70%;
 		text-align: center;
-		background-color: #e0ffe0;
+		background-color: #eeffee;
+	}
+
+	#output {
+		background-color: #E0E0E0;
+		padding: 10px 20px 10px 20px;
 	}
 </style>
 
 <script>
 
-	function mlog(msg) {
+	function log(msg, clean = false) {
 		name = 'output'
 		output = document.getElementById(name);
 		if (output)
-			output.innerHTML += msg + '</br>'
+			if (clean)
+				output.innerHTML = msg + '</br>'
+			else
+				output.innerHTML += msg + '</br>';
 		else 
-			alert('Can`t get elemend with ID [' + name + ']')
+			alert('Can`t get elemend with ID [' + name + ']');
+	}
+
+	function log_e(msg)	{
+		log('E:' + msg);
 	}
 
 
 	function on_open(){
 		web_socket.send('Prima');
-		mlog('Message is sent...');
+		log('Message is sent...');
 	};
 
 
 	function on_message(event) { 
 		var msg = event.data;
-		mlog("Message is received: " + msg);
+		log("Message is received: " + msg);
 	};
 
 
 	function on_close() { 
-		mlog("Connection is closed..."); 
+		log("Connection is closed...");
 	};
 
 
 	function on_error(event) {
-		mlog('Error has occured:');
-		mlog('  message: ' + event.message);
-		mlog('  filename: ' + event.filename);
-		mlog('  lineno: ' + event.lineno + ' colno: ' + event.colno);
-		mlog('  error: ' + event.error);
+		log('Error has occured:');
+		log('  message: ' + event.message);
+		log('  filename: ' + event.filename);
+		log('  lineno: ' + event.lineno + ' colno: ' + event.colno);
+		log('  error: ' + event.error);
 	};
+
+	function on_mouse_enter(row, col) {
+		for (r = 0; r < 9; ++r) {
+			for (c = 0; c < 9; ++c) {
+				var id = 'cell_' + r + '_' + c;
+				var cell = document.getElementById(id);
+				if (!cell) {
+					log_e('Can`t find ' + id + ' element');
+					return;
+				}
+				if (r == row && c == col) {
+					cell.style.backgroundColor = '#ffe000';
+				} else if (r == row || c == col) {
+					cell.style.backgroundColor = '#e09000';
+				}
+			}
+		}
+	}
+	function on_mouse_leave(row, col) {
+		for (r = 0; r < 9; ++r) {
+			for (c = 0; c < 9; ++c) {
+				var id = 'cell_' + r + '_' + c;
+				var cell = document.getElementById(id)
+				if (!cell) {
+					log_e('Can`t find ' + id + 'element');
+					return;
+				}
+				if (r == row || c == col) {
+					cell.style.backgroundColor = '';
+				}
+			}
+		}
+	}
+
+	function on_off(row, col, style) {
+		number_id = 'number_' + row + '_' + col;
+		number_div = document.getElementById(number_id);
+		if (!number_div) {
+			log_e('Can`t find ' + number_id + ' element');
+			return false;
+		}
+		tips_id = 'tips_' + row + '_' + col;
+		tips_div = document.getElementById(tips_id);
+		if (!tips_div) {
+			log_e('Can`t find ' + tips_id + ' element');
+			return false;
+		}
+
+		number_div.style.display = (style?'':'none');
+		tips_div.style.display = (style?'none':'');
+	}
+
+	var last_row = null;
+	var last_col = null;
+
+	function on_click(row, col) {
+		if (last_row != null && last_col != null)
+			on_off(last_row, last_col, false);
+		last_row = row;
+		last_col = col;
+		on_off(last_row, last_col, true);
+	}
+
+	function create_greed() {
+		greed = document.getElementById('greed');
+		if (!greed) {
+			log_e("Can't find the greed div");
+			return;
+		}
+
+		greed.innerHTML = '';
+
+		sub_cell = function(row, col) {
+			sub_str = '<table class="internal">';
+			for (r = 0; r < 3; ++r) {
+				sub_str += '<tr class="internal">';
+				for (c = 0; c < 3; ++c) {
+					s1 = (r + row) + '_' + (c + col)
+					s2 = (r + row) + ',' + (c + col)
+					number_div = '<div id="number_' + s1 + '" style="display:none;">0</div>';
+					tips_div = '<div id="tips_' + s1 + '">1</div>';
+					sub_str += '<td class="internal" id="cell_' + s1 + '"'
+						+ 'onmouseenter="on_mouse_enter(' + s2 + ')"'
+						+ 'onmouseleave="on_mouse_leave(' + s2 + ')"'
+						+ 'onclick="on_click(' + s2 + ')"'
+						+ '>' + number_div + tips_div + '</td>';
+				}
+				sub_str += '</tr>';
+			}
+			sub_str += '</table>';
+			return sub_str;
+		}
+
+		str = '<table class="external">';
+		for (i = 0; i < 3; ++i) {
+			str += '<tr class="external">';
+			for (j = 0; j < 3; ++j) {
+				str += '<td class="external">' + sub_cell(i*3, j*3) + '</td>';
+			}
+			str += '</tr>';
+		}
+		str += '</table>';
+
+		greed.innerHTML += str;
+	}
 
 
 	function main(host, port) {
-		mlog('Here we go');
+		log('Here we go', true);
+
+		create_greed();
 
 		if (!("WebSocket" in window)) {
-			mlog('WebSocket NOT supported by your Browser!');
+			log_e('WebSocket NOT supported by your Browser!');
 			return;
 		}
 
@@ -74,16 +206,13 @@
 		web_socket.onmessage = on_message;
 		web_socket.onclose = on_close;
 		web_socket.onerror = on_error;
-
-		greed = document.getElementById('greed');
-		greed.innerHTML += '';
 	}
 
 </script>
 </head>
 
 <body onload='main("localhost", 8765)'>
-	<div id="greed">fwfe</div>
-	<div id="output" style="background-color: #E0E0E0" />
+	<div id="greed">Greed</div>
+	<div id="output">Log</div>
 </body>
 
